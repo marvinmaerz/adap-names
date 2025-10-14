@@ -3,7 +3,7 @@ export class Coordinate {
     private x: number = 0;
     private y: number = 0;
 
-    constructor(x?: number, y?: number) {
+    constructor(x?: number, y?: number) {   // "?" indicates an optional parameter in typescript
         this.initialize(x, y);
     }
 
