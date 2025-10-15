@@ -34,10 +34,12 @@ export class Name {
      */
     public asString(delimiter: string = this.delimiter): string {
         let res: string = "";
-        for (let index = 0; index < this.components.length - 1; index++) {
-            res += this.components[index] + delimiter;
+        for (let index = 0; index < this.components.length; index++) {
+            let comp: string = this.components[index];
+            res += comp;
+            if (index != this.components.length - 1) res += delimiter;
         }
-        return res + this.components[this.components.length-1];     // do not put delimiter after last component
+        return res;     // do not put delimiter after last component
     }
 
     /** 
@@ -48,10 +50,14 @@ export class Name {
     public asDataString(): string {
         //TODO
         let res: string = "";
-        for (let index = 0; index < this.components.length - 1; index++) {
-            res += this.components[index] + ESCAPE_CHARACTER + DEFAULT_DELIMITER;
+        for (let index = 0; index < this.components.length; index++) {
+            let comp: string = this.components[index];
+            comp = comp.replaceAll(".", ESCAPE_CHARACTER + ".");
+            comp = comp.replaceAll("\\", ESCAPE_CHARACTER + "\\");
+            res += comp;
+            if (index != this.components.length - 1) res += DEFAULT_DELIMITER;
         }
-        return res + this.components[this.components.length-1];
+        return res;
     }
 
     public getComponent(i: number): string {
@@ -75,7 +81,10 @@ export class Name {
     /** Expects that new Name component c is properly masked */
     public insert(i: number, c: string): void {
         if (i < 0) {throw new Error("i < 0");}
-        if (i >= this.components.length) {throw new Error("i >= components.length !");}
+        if (i >= this.components.length) {
+            this.append(c);
+            return;
+        }
         this.components.splice(i, 0, c);
     }
 
