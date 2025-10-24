@@ -11,12 +11,24 @@ describe("Escape character carnage", () => {
     
   });
 
-  it("test correct escaping of backslash", () => {
+  it("test correct escaping of backslash 1", () => {
     let n: Name = new Name(["path\\to", "user"], "\\");
     expect(n.asString()).toBe("path\\to\\user");
     expect(n.asDataString()).toBe("path\\\\to.user");
   });
+
+  it("test correct escaping of backslash 2", () => {
+    let n: Name = new Name(["path\\to", "user"], ".");
+    expect(n.asString()).toBe("path\\to.user")
+  });
+
+  it("test correct escaping of backslash 3 (verified by Prof Riehle)", () => {
+    let n: Name = new Name(["oss\\", "cs", "fau\.", "de"], ".");
+    expect(n.asString()).toBe("oss\\.cs.fau\..de")
+  });
 });
+
+
 
 describe("Modify operations tests", () => {
   test("getComponent()", () => {
@@ -25,6 +37,13 @@ describe("Modify operations tests", () => {
     expect.soft(() => n.getComponent(4)).toThrowError();
     expect(n.getComponent(3)).toBe("de");
     expect(n.getComponent(0)).toBe("oss");
+  });
+
+  test("getComponent masking", ()=>{
+    let n: Name = new Name(["oss\\", "cs\\\\", "fau\.", "de."], ".");
+    expect(n.getComponent(0)).toBe("oss\\");
+    expect(n.getComponent(1)).toBe("cs\\\\");
+    expect(n.getComponent(3)).toBe("de.");      // since the dot is supposed to be a part of the component (not masked when coming into the constructor), do not mask it here
   });
 
   test("getNoComponents()", () => {

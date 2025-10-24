@@ -20,7 +20,7 @@ export class Name {
     private components: string[] = [];
 
     /** Expects that all Name components are properly masked */
-    constructor(other: string[], delimiter?: string) {
+    constructor(other: string[], delimiter?: string) { 
         this.components = other;
         if (delimiter != undefined) {
             this.delimiter = delimiter;
@@ -37,9 +37,9 @@ export class Name {
         for (let index = 0; index < this.components.length; index++) {
             let comp: string = this.components[index];
             res += comp;
-            if (index != this.components.length - 1) res += delimiter;
+            if (index != this.components.length - 1) res += delimiter;   // do not put delimiter after last component
         }
-        return res;     // do not put delimiter after last component
+        return res;     
     }
 
     /** 
@@ -48,7 +48,6 @@ export class Name {
      * The special characters in the data string are the default characters
      */
     public asDataString(): string {
-        //TODO
         let res: string = "";
         for (let index = 0; index < this.components.length; index++) {
             let comp: string = this.components[index];
