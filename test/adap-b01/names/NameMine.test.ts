@@ -26,6 +26,15 @@ describe("Escape character carnage", () => {
     let n: Name = new Name(["oss\\", "cs", "fau\.", "de"], ".");
     expect(n.asString()).toBe("oss\\.cs.fau\..de")
   });
+
+  it("test escape and delimiter boundary conditions", () => {
+    // Original name string = "oss.cs.fau.de"
+    let n: Name = new Name(["oss.cs.fau.de"], '#');
+    expect(n.asString()).toBe("oss.cs.fau.de");
+    n.append("people");
+    expect(n.asString()).toBe("oss.cs.fau.de#people");
+    expect(n.asDataString()).toBe("oss\\\\.cs\\\\.fau\\\\.de.people")
+  });
 });
 
 

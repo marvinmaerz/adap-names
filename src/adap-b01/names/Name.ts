@@ -31,6 +31,7 @@ export class Name {
      * Returns a human-readable representation of the Name instance using user-set special characters
      * Special characters are not escaped (creating a human-readable string)
      * Users can vary the delimiter character to be used
+     * @methodtype conversion-method
      */
     public asString(delimiter: string = this.delimiter): string {
         let res: string = "";
@@ -46,6 +47,7 @@ export class Name {
      * Returns a machine-readable representation of Name instance using default special characters
      * Machine-readable means that from a data string, a Name can be parsed back in
      * The special characters in the data string are the default characters
+     * @methodtype conversion-method
      */
     public asDataString(): string {
         let res: string = "";
@@ -59,26 +61,34 @@ export class Name {
         return res;
     }
 
-    /** Returns properly masked component string */
+    /** Returns properly masked component string 
+     * @methodtype get-method
+    */
     public getComponent(i: number): string {
         if (i < 0) {throw new Error("i < 0");}
         if (i >= this.components.length) {throw new Error("i >= components.length !");}
         return this.components[i];
     }
 
-    /** Expects that new Name component c is properly masked */
+    /** Expects that new Name component c is properly masked 
+     * @methodtype set-method
+    */
     public setComponent(i: number, c: string): void {
         if (i < 0) {throw new Error("i < 0");}
         if (i >= this.components.length) {throw new Error("i >= components.length !");}
         this.components[i] = c;
     }
 
-     /** Returns number of components in Name instance */
+     /** Returns number of components in Name instance 
+      * @methodtype get-method
+     */
      public getNoComponents(): number {
         return this.components.length;
     }
 
-    /** Expects that new Name component c is properly masked */
+    /** Expects that new Name component c is properly masked 
+     * @methodtype command-method
+    */
     public insert(i: number, c: string): void {
         if (i < 0) {throw new Error("i < 0");}
         if (i >= this.components.length) {
@@ -88,11 +98,16 @@ export class Name {
         this.components.splice(i, 0, c);
     }
 
-    /** Expects that new Name component c is properly masked */
+    /** Expects that new Name component c is properly masked 
+     * @methodtype command-method
+    */
     public append(c: string): void {
         this.components.push(c);
     }
 
+    /**
+     * @methodtype command-method
+     */
     public remove(i: number): void {
         if (i < 0) {throw new Error("i < 0");}
         if (i >= this.components.length) {throw new Error("i >= components.length !");}
