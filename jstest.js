@@ -1,1 +1,1 @@
-console.log("path\\\\to");
+console.log("path\\to");

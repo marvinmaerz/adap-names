@@ -45,6 +45,7 @@ describe("Delimiter function tests", () => {
     let n: Name = new StringName("oss#fau#de", '#');
     n.insert(1, "cs");
     expect(n.asString()).toBe("oss#cs#fau#de");
+    expect(n.getNoComponents()).toBe(4);
   });
 });
 
@@ -55,5 +56,7 @@ describe("Escape character extravaganza", () => {
     expect(n.asString()).toBe("oss.cs.fau.de");
     n.append("people");
     expect(n.asString()).toBe("oss.cs.fau.de#people");
+    // MINE:
+    expect(n.asDataString()).toBe("oss\\\\.cs\\\\.fau\\\\.de.people")
   });
 });
