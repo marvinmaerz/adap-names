@@ -1,3 +1,12 @@
-# adap-names
+# Advanced Design and Programming Homework
 
-Example code and homework for the Advanced Design and Programming (ADAP) course
+Repository for submitting the graded homework (80% of final grade) in the Advanced Design and Programming (ADAP) course at FAU.
+
+### Homework:
+- B01 - Method Types and Properties
+- B02 - Class and Interface Design
+- B03 - Subtyping and Inheritance
+- B04 - Design by Contract
+- B05 - Error and Exception Handling
+- B06 - Value Objects
+
