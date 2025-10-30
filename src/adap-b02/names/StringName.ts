@@ -16,21 +16,52 @@ export class StringName implements Name {
         this.noComponents = this.parseDataString(this.asDataString()).length;
     }
 
-
+    /**
+     * Turns the name into a human-readable form, without escape characters (except literal-taken backslashes when using backslash as a delimiter)
+     * Strips escape characters from masked components, e.g. turning an escaped backslash "\\\\" into "\\", 
+     * or "\\." into "."
+     */
     public asString(delimiter: string = this.delimiter): string {
-        return this.name.replaceAll(this.delimiter, delimiter);
+        // let res: string = "";
+        // if (this.delimiter == ESCAPE_CHARACTER){
+        //     res = this.name.replaceAll(ESCAPE_CHARACTER + ESCAPE_CHARACTER, ESCAPE_CHARACTER);
+        //     // "\\\\" (escaped backslash) -> "\\" (literal backslash at runtime)
+        // } else {
+        //     res = this.name.replaceAll(ESCAPE_CHARACTER, "");
+        // }
+        if (this.delimiter == ESCAPE_CHARACTER){
+            return this.name.replaceAll(/\\\\|\\/g, match => {
+                if (match == "\\\\") return "\\";       // un-escape literal backslash
+                return delimiter;                       // substitute delimiter
+            })
+        } else{
+            let res: string = this.name.replaceAll(ESCAPE_CHARACTER, "");
+            return res.replaceAll(this.delimiter, delimiter);
+        }
+        
+        
     }
 
 
     public asDataString(): string {
         // if DEFAULT_DELIMITER = "." is part of the component, and e.g. this.delimiter = "#", then mask the dot like this: "\\\\." 
         // before replacing "#" with "." for the data string output
-        if (this.delimiter != DEFAULT_DELIMITER) { 
-            let res: string = "";
-            res = this.name.replaceAll(DEFAULT_DELIMITER, ESCAPE_CHARACTER + ESCAPE_CHARACTER + DEFAULT_DELIMITER);
-            return res.replaceAll(this.delimiter, DEFAULT_DELIMITER);
+        // if (this.delimiter != DEFAULT_DELIMITER) { 
+        //     let res: string = "";
+        //     res = this.name.replaceAll(DEFAULT_DELIMITER, ESCAPE_CHARACTER + ESCAPE_CHARACTER + DEFAULT_DELIMITER);
+        //     return res.replaceAll(this.delimiter, DEFAULT_DELIMITER);
+        // }
+
+        if (this.delimiter == ESCAPE_CHARACTER){
+            // Regex pattern: if 
+            return this.name.replaceAll(/\\\\|\\/g, match => {
+            if (match == "\\\\") return "\\\\";             // do not un-escape literal backslash
+            return DEFAULT_DELIMITER;                       // substitute delimiter
+        })
+        } else {
+            return this.name.replaceAll(this.delimiter, DEFAULT_DELIMITER);
         }
-        return this.name.replaceAll(this.delimiter, DEFAULT_DELIMITER);
+        
     }
 
 
@@ -101,8 +132,8 @@ export class StringName implements Name {
     /**
      * Parses a given data string back into a string array, with respect to escaped delimiters.
      * A more fancy version of String.split().
-     * E.g. input "oss\\.\\..fau.de" returns ["oss..", "fau", "de"]
-     * E.g. input "hey.voll\\.\\..cool.hier\\." returns ["hey", "voll..", "cool", "hier."]
+     * E.g. input "oss\\.\\..fau.de" returns ["oss\\.\\.", "fau", "de"]
+     * E.g. input "hey.voll\\.\\..cool.hier\\." returns ["hey", "voll\\.\\.", "cool", "hier\\."]
      * @methodtype command-method
      */
     protected parseDataString(data: string): string[]{
@@ -110,14 +141,15 @@ export class StringName implements Name {
         let chars: string[] = data.split("");
         let comp: string = "";
         for (let i = 0; i < chars.length; i++){
-            // search for escaped delimiter ["\\", "\\", "."] and append only it to component
-            if (chars[i] == ESCAPE_CHARACTER && chars[i+1] == ESCAPE_CHARACTER && chars[i+2] == DEFAULT_DELIMITER){
+            // search for escaped delimiter ["\\", "."] and append it to component (do not close it)
+            if (chars[i] == ESCAPE_CHARACTER && chars[i+1] == DEFAULT_DELIMITER){
+                comp += ESCAPE_CHARACTER;
                 comp += DEFAULT_DELIMITER;
-                i += 2;         // skip over the following escape character + delimiter
+                i += 1;         // skip over the following delimiter, since it's already added
                 continue;
             }
+            // if un-escaped delimiter, end component and append to result
             if (chars[i] == DEFAULT_DELIMITER){
-                // if delimiter not escaped, append the now ended component to the result and begin construction of new component
                 res.push(comp);
                 comp = "";
                 continue;

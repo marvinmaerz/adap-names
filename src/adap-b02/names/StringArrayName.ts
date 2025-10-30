@@ -27,6 +27,12 @@ export class StringArrayName implements Name {
         let res: string = "";
         for (let index = 0; index < this.components.length; index++) {
             let comp: string = this.components[index];
+            if (this.delimiter == ESCAPE_CHARACTER){
+                comp = comp.replaceAll(ESCAPE_CHARACTER + ESCAPE_CHARACTER, ESCAPE_CHARACTER); // "\\\\" (escaped backslash) -> "\\" (literal backslash at runtime)
+            }
+            else {
+                comp = comp.replaceAll(ESCAPE_CHARACTER, "");
+            }
             res += comp;
             if (index != this.components.length - 1) res += delimiter;   // do not put delimiter after last component
         }
@@ -41,15 +47,14 @@ export class StringArrayName implements Name {
      * @methodtype conversion-method
      */
     public asDataString(): string {
-        let res: string = "";
-        for (let index = 0; index < this.components.length; index++) {
-            let comp: string = this.components[index];
-            comp = comp.replaceAll(".", ESCAPE_CHARACTER + ".");
-            comp = comp.replaceAll("\\", ESCAPE_CHARACTER + "\\");
-            res += comp;
-            if (index != this.components.length - 1) res += DEFAULT_DELIMITER;
-        }
-        return res;
+        // let res: string = "";
+        // for (let index = 0; index < this.components.length; index++) {
+        //     let comp: string = this.components[index];
+        //     res += comp;
+        //     if (index != this.components.length - 1) res += DEFAULT_DELIMITER;
+        // }
+        // return res;
+        return this.components.join(DEFAULT_DELIMITER); // (equal to the above code)
     }
 
 
@@ -132,14 +137,15 @@ export class StringArrayName implements Name {
         let chars: string[] = data.split("");
         let comp: string = "";
         for (let i = 0; i < chars.length; i++){
-            // search for escaped delimiter ["\\", "\\", "."] and append only it to component
-            if (chars[i] == ESCAPE_CHARACTER && chars[i+1] == ESCAPE_CHARACTER && chars[i+2] == DEFAULT_DELIMITER){
+            // search for escaped delimiter ["\\", "."] and append it to component (do not close it)
+            if (chars[i] == ESCAPE_CHARACTER && chars[i+1] == DEFAULT_DELIMITER){
+                comp += ESCAPE_CHARACTER;
                 comp += DEFAULT_DELIMITER;
-                i += 2;         // skip over the following escape character + delimiter
+                i += 1;         // skip over the following delimiter, since it's already added
                 continue;
             }
+            // if un-escaped delimiter, end component and append to result
             if (chars[i] == DEFAULT_DELIMITER){
-                // if delimiter not escaped, append the now ended component to the result and begin construction of new component
                 res.push(comp);
                 comp = "";
                 continue;

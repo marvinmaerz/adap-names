@@ -36,13 +36,13 @@ describe("Interchangeability of StringArrayName and StringName", ()=>{
     });
 
     test("concat StringName with StringArrayName", ()=>{
-        let n1: Name = new StringName("oss/cs/fau.de", "/");
+        let n1: Name = new StringName("oss/cs/fau\\.de", "/");
         let n2: Name = new StringArrayName(["oss", "cs", "fau", "de"], "/");
         n1.concat(n2)
         expect(n1.asString()).toBe("oss/cs/fau.de/oss/cs/fau/de");
         n1.append("dataType");
         expect(n1.asString()).toBe("oss/cs/fau.de/oss/cs/fau/de/dataType");
-        expect(n1.asDataString()).toBe("oss.cs.fau\\\\.de.oss.cs.fau.de.dataType")
+        expect(n1.asDataString()).toBe("oss.cs.fau\\.de.oss.cs.fau.de.dataType")
     });
 
     test("concat StringArrayName with StringName", ()=>{
@@ -64,14 +64,14 @@ describe("Concatenate tests", ()=>{
     });
 
     test("concat with delimiter in component", ()=>{
-        let n1: Name = new StringArrayName(["oss.", "fau", "de"]);
-        let n2: Name = new StringArrayName(["oss.", "fau.", "de"]);
-        let n3: Name = new StringArrayName(["hey", "voll..", "cool", "hier."])
+        let n1: Name = new StringArrayName(["oss\\.", "fau", "de"]);
+        let n2: Name = new StringArrayName(["oss\\.", "fau\\.", "de"]);
+        let n3: Name = new StringArrayName(["hey", "voll\\.\\.", "cool", "hier\\."])
         n1.concat(n2);
-        expect(n1.asDataString()).toBe("oss\\\\..fau.de.oss\\\\..fau\\\\..de");
+        expect(n1.asDataString()).toBe("oss\\..fau.de.oss\\..fau\\..de");
 		expect(n1.getNoComponents()).toBe(6);
         n1.concat(n3);
-        expect(n1.asDataString()).toBe("oss\\\\..fau.de.oss\\\\..fau\\\\..de.hey.voll\\\\.\\\\..cool.hier\\\\.")
+        expect(n1.asDataString()).toBe("oss\\..fau.de.oss\\..fau\\..de.hey.voll\\.\\..cool.hier\\.")
     });
 });
 
@@ -163,19 +163,22 @@ describe("Modify operations tests", () => {
 
 describe("Escape character carnage", () => {
 	it("test correct escaping of dot", () => {
-		let n: Name = new StringArrayName(["path.to", "user"], ".");
+		// careful to mask the dot (or backslash) in first component correctly! 
+		// else, StringName becomes ambiguous when parsing the string
+		let n1: Name = new StringArrayName(["path\\.to", "user"], ".");
 		let n2: Name = new StringName("path\\.to.user", ".");
-		expect(n.asString()).toBe("path.to.user");
-		expect(n.asDataString()).toBe("path\\\\.to.user");
-		// expect(n2.asString()).toBe("path.to.user");
+		expect(n1.asString()).toBe("path.to.user");
+		expect(n1.asDataString()).toBe("path\\.to.user");
+		expect(n2.asString()).toBe("path.to.user");
 		expect(n2.asDataString()).toBe("path\\.to.user");
 	});
 
 	it("test correct escaping of backslash 1", () => {
-		let n1: Name = new StringArrayName(["path\\to", "user"], "\\");
+		let n1: Name = new StringArrayName(["path\\\\to", "user"], "\\");
 		let n2: Name = new StringName("path\\\\to\\user", "\\");
 		for (let n of [n1, n2]){
 			expect(n.asString()).toBe("path\\to\\user");
+			expect(n.asString(".")).toBe("path\\to.user");
 			expect(n.asDataString()).toBe("path\\\\to.user");
 		}
 	});
@@ -183,28 +186,30 @@ describe("Escape character carnage", () => {
 	it("test correct escaping of backslash 2", () => {
 		let n: Name = new StringArrayName(["path\\to", "user"], ".");
 		let n2: Name = new StringName("path\\to.user", ".");
-		expect(n.asString()).toBe("path\\to.user");
-		expect(n2.asString()).toBe("path\\to.user");
+		expect(n.asString()).toBe("pathto.user");
+		expect(n2.asString()).toBe("pathto.user");
 	});
 
 	it("test correct escaping of backslash 3 (verified by Prof Riehle)", () => {
-		let n: Name = new StringArrayName(["oss\\", "cs", "fau\.", "de"], ".");
-		let n2: Name = new StringName("oss\\.cs.fau\..de", ".");
-		expect(n.asString()).toBe("oss\\.cs.fau\..de")
-		expect(n2.asString()).toBe("oss\\.cs.fau\..de");
+		let n: Name = new StringArrayName(["oss\\", "cs", "fau\\.", "de"], ".");
+		let n2: Name = new StringName("oss\\.cs.fau\\..de", ".");
+		expect(n.asString()).toBe("oss.cs.fau..de")
+		expect(n2.asString()).toBe("oss.cs.fau..de");
 	});
 
 	it("test escape and delimiter boundary conditions", () => {
 		// Original name string = "oss.cs.fau.de"
-		let n: Name = new StringArrayName(["oss.cs.fau.de"], '#');
-		let n2: Name = new StringName("oss.cs.fau.de", "#");
+		let n: Name = new StringArrayName(["oss\\.cs\\.fau\\.de"], '#');
+		let n2: Name = new StringName("oss\\.cs\\.fau\\.de", "#");
 		expect(n.asString()).toBe("oss.cs.fau.de");
 		expect(n2.asString()).toBe("oss.cs.fau.de");
 		n.append("people");
 		n2.append("people");
 		expect(n.asString()).toBe("oss.cs.fau.de#people");
 		expect(n2.asString()).toBe("oss.cs.fau.de#people");
-		expect(n.asDataString()).toBe("oss\\\\.cs\\\\.fau\\\\.de.people");
-		expect(n2.asDataString()).toBe("oss\\\\.cs\\\\.fau\\\\.de.people");
+		expect(n.asString("-")).toBe("oss.cs.fau.de-people")
+		expect(n2.asString("-")).toBe("oss.cs.fau.de-people")
+		expect(n.asDataString()).toBe("oss\\.cs\\.fau\\.de.people");
+		expect(n2.asDataString()).toBe("oss\\.cs\\.fau\\.de.people");
 	});
 });
