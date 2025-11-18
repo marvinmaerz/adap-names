@@ -9,7 +9,7 @@ export abstract class AbstractName implements Name {
         throw new Error("needs implementation or deletion");
     }
 
-    public clone(): Name {
+    public clone(): Name {      // Kandidat für Implementierung hier
         throw new Error("needs implementation or deletion");
     }
 
@@ -25,22 +25,30 @@ export abstract class AbstractName implements Name {
         throw new Error("needs implementation or deletion");
     }
 
-    public isEqual(other: Name): boolean {
+    public isEqual(other: Name): boolean {  // Kandidat für Implementierung hier
         throw new Error("needs implementation or deletion");
     }
 
-    public getHashCode(): number {
+    public getHashCode(): number {  // Kandidat für Implementierung hier
         throw new Error("needs implementation or deletion");
     }
 
-    public isEmpty(): boolean {
+    public isEmpty(): boolean { // Kandidat für Implementierung hier
         throw new Error("needs implementation or deletion");
     }
 
-    public getDelimiterCharacter(): string {
+    public getDelimiterCharacter(): string {    // Kandidat für Implementierung hier
         throw new Error("needs implementation or deletion");
     }
 
+    public concat(other: Name): void {
+        throw new Error("needs implementation or deletion");
+    }
+
+
+    // Primitive methods, need to be implemented in the sub-classes.
+    // The above non-abstract methods can be built solely with logic using those functions.
+    // When they are implemented in their respective sub-classes, the narrow inheritance interface is complete.
     abstract getNoComponents(): number;
 
     abstract getComponent(i: number): string;
@@ -49,9 +57,4 @@ export abstract class AbstractName implements Name {
     abstract insert(i: number, c: string): void;
     abstract append(c: string): void;
     abstract remove(i: number): void;
-
-    public concat(other: Name): void {
-        throw new Error("needs implementation or deletion");
-    }
-
 }
