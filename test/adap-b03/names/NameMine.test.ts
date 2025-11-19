@@ -78,6 +78,13 @@ describe("StringName basic tests", ()=>{
         expect(n2.asString()).toBe("oss#cs#fau#de");
         expect(n2.asDataString()).toBe("oss.cs.fau.de");
     });
+
+    test("isEmtpy", ()=>{
+        let n1: Name = new StringName("");
+        let n2: Name = new StringArrayName([]);
+        expect(n1.isEmpty()).toBe(false);
+        expect(n2.isEmpty()).toBe(true);
+    });
 })
 
 
@@ -274,3 +281,44 @@ describe("Escape character carnage", () => {
 		expect(n2.asDataString()).toBe("oss\\.cs\\.fau\\.de.people");
 	});
 });
+
+
+describe("Cloneable and Equality", () => {
+    test("clone StringName", () => {
+        let n1: AbstractName = new StringName("oss.cs.fau.de", "+");
+        let n2: Name = n1.clone()
+        // console.log(n1.asDataString(), n1.getNoComponents())
+        // console.log(n2.asDataString(), n2.getNoComponents())
+        expect(n1.isEqual(n2)).toBe(true);
+    });
+
+    test("clone StringArrayName", () => {
+        let n1: AbstractName = new StringArrayName(["oss", "cs", "fau", "de"], "+");
+        let n2: Name = n1.clone()
+        // console.log(n1.asDataString(), n1.getNoComponents())
+        // console.log(n2.asDataString(), n2.getNoComponents())
+        expect(n1.isEqual(n2)).toBe(true);
+    });
+
+    test("isEqual", () => {
+        let n1: Name = new StringName("oss.cs.fau.de");
+        let n2: Name = new StringArrayName(["oss", "cs", "fau", "de"]);
+        expect(n1.isEqual(n2)).toBe(true);
+        let n3: Name = new StringArrayName(["oss", "cs", "fau", "de"], "#");
+        expect(n1.isEqual(n3)).toBe(false);
+        expect(n2.isEqual(n3)).toBe(false);
+    });
+
+    test("hashCode", ()=>{
+        let n1: Name = new StringName("oss.cs.fau.de");
+        let n2: Name = new StringArrayName(["oss", "cs", "fau", "de"]);
+        let n3: Name = new StringArrayName(["oss", "cs", "fau", "de"]);
+        let n4: Name = new StringArrayName(["oss", "cs", "fau", "de"], "+");
+        let n5: Name = new StringArrayName(["oss", "cs", "fau", "de", "hello"], "+");
+        expect(n1.getHashCode()).toBe(n2.getHashCode());
+        expect(n2.getHashCode()).toBe(n3.getHashCode());
+        expect(n2.getHashCode()).toBe(n4.getHashCode());
+        expect(n4.getHashCode()).not.toBe(n5.getHashCode());
+    });
+});
+

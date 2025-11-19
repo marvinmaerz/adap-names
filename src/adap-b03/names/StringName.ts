@@ -9,7 +9,14 @@ export class StringName extends AbstractName {
 
     constructor(source: string, delimiter?: string) {
         super();
-        throw new Error("needs implementation or deletion");
+
+        this.name = source;
+
+        if (delimiter != undefined){
+            this.delimiter = delimiter;
+        }
+
+        this.noComponents = this.parseString().length;
     }
 
 
@@ -22,13 +29,13 @@ export class StringName extends AbstractName {
     public getComponent(i: number): string {
         if (i < 0) {throw new Error("i < 0");}
         if (i >= this.noComponents) {throw new Error("i >= noComponents !");}
-        return this.parseDataString(this.asDataString())[i];
+        return this.parseString()[i];
     }
 
     public setComponent(i: number, c: string): void {
         if (i < 0) {throw new Error("i < 0");}
         if (i >= this.noComponents) {throw new Error("i >= noComponents !");}
-        let components: string[] = this.parseDataString(this.asDataString());
+        let components: string[] = this.parseString();
         components[i] = c;
         this.name = components.join(this.delimiter);
     }
@@ -39,7 +46,7 @@ export class StringName extends AbstractName {
             this.append(c);
             return;
         }
-        let components: string[] = this.parseDataString(this.asDataString());
+        let components: string[] = this.parseString();
         components.splice(i, 0, c);
         this.name = components.join(this.delimiter);
         this.noComponents += 1;
@@ -53,10 +60,14 @@ export class StringName extends AbstractName {
     public remove(i: number): void {
         if (i < 0) {throw new Error("i < 0");}
         if (i >= this.noComponents) {throw new Error("i >= noComponents !");}
-        let components: string[] = this.parseDataString(this.asDataString());
+        let components: string[] = this.parseString();
         components.splice(i, 1);
         this.name = components.join(this.delimiter);
         this.noComponents -= 1;
+    }
+
+    public newInstance(): StringName {
+        return new StringName(this.name, this.delimiter);
     }
 
     /**
@@ -66,10 +77,24 @@ export class StringName extends AbstractName {
      * E.g. input "hey.voll\\.\\..cool.hier\\." returns ["hey", "voll\\.\\.", "cool", "hier\\."]
      * @methodtype command-method
      */
-    protected parseDataString(data: string): string[]{
+    protected parseString(): string[]{
         let res: string[] = [];
-        let chars: string[] = data.split("");
+
+        // internal data string conversion, to avoid infinite loops by calling asDataString() repeatedly in the call stack
+        let dataString: string = "";
+        if (this.delimiter == ESCAPE_CHARACTER){
+                    // Regex pattern: if 
+                    dataString = this.name.replaceAll(/\\\\|\\/g, match => {
+                    if (match == "\\\\") return "\\\\";             // do not un-escape literal backslash
+                    return DEFAULT_DELIMITER;                       // substitute delimiter
+                })
+                } else {
+                    dataString = this.name.replaceAll(this.delimiter, DEFAULT_DELIMITER);
+                }
+
+        let chars: string[] = dataString.split("");
         let comp: string = "";
+
         for (let i = 0; i < chars.length; i++){
             // search for escaped delimiter ["\\", "."] and append it to component (do not close it)
             if (chars[i] == ESCAPE_CHARACTER && chars[i+1] == DEFAULT_DELIMITER){

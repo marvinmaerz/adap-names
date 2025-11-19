@@ -6,43 +6,97 @@ export abstract class AbstractName implements Name {
     protected delimiter: string = DEFAULT_DELIMITER;
 
     constructor(delimiter: string = DEFAULT_DELIMITER) {
-        throw new Error("needs implementation or deletion");
+        this.delimiter = delimiter;
     }
 
-    public clone(): Name {      // Kandidat für Implementierung hier
-        throw new Error("needs implementation or deletion");
+
+    public clone(): Name {
+        return this.newInstance();
     }
+
 
     public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation or deletion");
+        let s: string = "";
+        for (let i = 0; i < this.getNoComponents(); i++) {
+            if (i > 0) s += delimiter;
+            let comp: string = this.getComponent(i);
+            if (this.delimiter == ESCAPE_CHARACTER) {
+                comp = comp.replaceAll(ESCAPE_CHARACTER + ESCAPE_CHARACTER, ESCAPE_CHARACTER); // "\\\\" (escaped backslash) -> "\\" (literal backslash at runtime)
+            } 
+            else {
+                comp = comp.replaceAll(ESCAPE_CHARACTER, "");
+            }
+            s += comp;          
+        }
+
+        return s;
     }
+    
 
     public toString(): string {
         return this.asDataString();
     }
 
+
     public asDataString(): string {
-        throw new Error("needs implementation or deletion");
+        let s: string = "";
+        for (let i = 0; i < this.getNoComponents(); i++) {
+            if (i > 0) s += DEFAULT_DELIMITER;
+            s += this.getComponent(i);
+        }
+
+        return s;
     }
 
-    public isEqual(other: Name): boolean {  // Kandidat für Implementierung hier
-        throw new Error("needs implementation or deletion");
+
+    public isEqual(other: Name): boolean {
+        // Different lengths => not equal
+        if (this.getNoComponents() != other.getNoComponents()) {
+            return false;
+        }
+
+        if (this.delimiter != other.getDelimiterCharacter()) {
+            return false;
+        }
+
+        // Check for (mis-)matching components
+        for (let i = 0; i < this.getNoComponents(); i++) {
+            if (this.getComponent(i) != other.getComponent(i)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    public getHashCode(): number {  // Kandidat für Implementierung hier
-        throw new Error("needs implementation or deletion");
+
+    public getHashCode(): number {
+        let hashCode: number = 0;
+        const s: string = this.asDataString();
+        for (let i = 0; i < s.length; i++) {
+            let c = s.charCodeAt(i);
+            hashCode = (hashCode << 5) - hashCode + c;
+            hashCode |= 0;
+        }
+
+        return hashCode;
     }
 
-    public isEmpty(): boolean { // Kandidat für Implementierung hier
-        throw new Error("needs implementation or deletion");
+
+    public isEmpty(): boolean {
+        return this.getNoComponents() == 0;
     }
 
-    public getDelimiterCharacter(): string {    // Kandidat für Implementierung hier
-        throw new Error("needs implementation or deletion");
+
+    public getDelimiterCharacter(): string {   
+        return this.delimiter;
     }
+
 
     public concat(other: Name): void {
-        throw new Error("needs implementation or deletion");
+        for (let i = 0; i < other.getNoComponents(); i++) {
+            this.append(other.getComponent(i));
+        }
     }
 
 
@@ -57,4 +111,9 @@ export abstract class AbstractName implements Name {
     abstract insert(i: number, c: string): void;
     abstract append(c: string): void;
     abstract remove(i: number): void;
+
+    /**
+     * Helper method for AbstractName.clone() 
+     * @returns A new instance that can be returned as a clone of this object. */
+    abstract newInstance(): AbstractName;
 }

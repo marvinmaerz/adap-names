@@ -8,7 +8,12 @@ export class StringArrayName extends AbstractName {
 
     constructor(source: string[], delimiter?: string) {
         super();
-        throw new Error("needs implementation or deletion");
+
+        this.components = source;
+
+        if (delimiter != undefined){
+            this.delimiter = delimiter;
+        }
     }
 
     // Primitive methods, which are not yet provided in the abstract superclass.
@@ -54,6 +59,11 @@ export class StringArrayName extends AbstractName {
         if (i < 0) {throw new Error("i < 0");}
         if (i >= this.components.length) {throw new Error("i >= components.length !");}
         this.components.splice(i, 1);
+    }
+
+
+    public newInstance(): StringArrayName {
+        return new StringArrayName(this.components, this.delimiter);
     }
 
 }
