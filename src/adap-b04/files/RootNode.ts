@@ -23,6 +23,7 @@ export class RootNode extends Directory {
     }
 
     public move(to: Directory): void {
+        // Precondition: to must be a valid Directory. Guarded through argument type and (hypothetical) Directory class invariant.
         // null operation
     }
 

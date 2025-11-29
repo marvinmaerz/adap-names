@@ -1,5 +1,7 @@
 import { Name } from "../names/Name";
 import { Directory } from "./Directory";
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
+
 
 export class Node {
 
@@ -7,6 +9,8 @@ export class Node {
     protected parentNode: Directory;
 
     constructor(bn: string, pn: Directory) {
+        IllegalArgumentException.assert(this.isValidBaseName(bn), "IllegalArgumentException: Invalid base name.");
+
         this.doSetBaseName(bn);
         this.parentNode = pn; // why oh why do I have to set this
         this.initialize(pn);
@@ -18,6 +22,7 @@ export class Node {
     }
 
     public move(to: Directory): void {
+        // Precondition: to must be a valid Directory. Guarded through argument type and (hypothetical) Directory class invariant.
         this.parentNode.removeChildNode(this);
         to.addChildNode(this);
         this.parentNode = to;
@@ -38,6 +43,7 @@ export class Node {
     }
 
     public rename(bn: string): void {
+        IllegalArgumentException.assert(this.isValidBaseName(bn), "IllegalArgumentException: Invalid base name.");
         this.doSetBaseName(bn);
     }
 
@@ -47,6 +53,16 @@ export class Node {
 
     public getParentNode(): Directory {
         return this.parentNode;
+    }
+
+
+    /**
+     * Precondition check.
+     * @param bn Base name to be checked for validity.
+     * @returns True if the base name is valid.
+     */
+    protected isValidBaseName(bn: string): boolean{
+        return bn.length > 0;
     }
 
 }
