@@ -41,7 +41,9 @@ export class Node {
     }
 
     public rename(bn: string): void {
+        IllegalArgumentException.assert(this.isValidBaseName(bn), "IllegalArgumentException: Invalid base name.");
         this.doSetBaseName(bn);
+        this.assertInvariant();
     }
 
     protected doSetBaseName(bn: string): void {
@@ -52,12 +54,42 @@ export class Node {
         return this.parentNode;
     }
 
+    
     /**
      * Returns all nodes in the tree that match bn
      * @param bn basename of node being searched for
      */
     public findNodes(bn: string): Set<Node> {
-        throw new Error("needs implementation or deletion");
+        this.assertInvariant();
+        IllegalArgumentException.assert(this.isValidBaseName(bn), "IllegalArgumentException: Invalid base name.");
+        let nodes: Set<Node> = new Set<Node>();
+
+        // Base case for recursive search
+        if (this.getBaseName() == bn) nodes.add(this);
+
+        return nodes;
+    }
+
+
+
+
+    /**
+     * Precondition check.
+     * @param bn Base name to be checked for validity.
+     * @returns True if the base name is valid.
+     */
+    protected isValidBaseName(bn: string): boolean{
+        return bn.length > 0;
+    }
+
+
+    /**
+     * Defining and asserting valid object states.
+     * Throwing an InvalidStateException if the Node is in an invalid state.
+     */
+    protected assertInvariant(): void{
+        const str: string = "InvalidStateException: ";
+        InvalidStateException.assert(this.getBaseName().length > 0, str+"Invalid base name.")
     }
 
 }

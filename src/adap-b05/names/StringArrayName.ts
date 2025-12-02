@@ -1,69 +1,120 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
+import { MethodFailedException } from "../common/MethodFailedException";
+import { InvalidStateException } from "../common/InvalidStateException";
+
 
 export class StringArrayName extends AbstractName {
 
     protected components: string[] = [];
 
     constructor(source: string[], delimiter?: string) {
-        super();
-        throw new Error("needs implementation or deletion");
+        super(delimiter);
+
+        this.components = source;
+
+        // Check validity of invariant after instantiation.
+        // Especially check validity of delimiter there & component/attribute settings and state. 
+        this.assertInvariant();
+
     }
 
-    public clone(): Name {
-        throw new Error("needs implementation or deletion");
-    }
+    // Primitive methods, which are not yet provided in the abstract superclass.
+    // This is because they are implementation-dependent.
 
-    public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation or deletion");
-    }
 
-    public asDataString(): string {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public isEqual(other: Name): boolean {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public getHashCode(): number {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public isEmpty(): boolean {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public getDelimiterCharacter(): string {
-        throw new Error("needs implementation or deletion");
-    }
-
+    /** @methodtype get-method */
     public getNoComponents(): number {
-        throw new Error("needs implementation or deletion");
+        // No pre- & postcondition, since a valid state is guaranteed by way of the invariant. 
+        return this.components.length;
     }
 
+
+    /** @methodtype get-method */
     public getComponent(i: number): string {
-        throw new Error("needs implementation or deletion");
+        // Precondition:
+        IllegalArgumentException.assert(this.isValidIndex(i), "IllegalArgumentException: Index out of bounds.");
+
+        return this.components[i];
     }
 
-    public setComponent(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
+
+    /** @methodtype set-method */
+    public setComponent(i: number, c: string): void {
+        // Preconditions:
+        IllegalArgumentException.assert(this.isValidIndex(i), "IllegalArgumentException: Index out of bounds.");
+        IllegalArgumentException.assert(this.isValidComponent(c), "IllegalArgumentException: Invalid component.");
+
+        this.components[i] = c;
+
+        // Postcondition:
+        const newComp: string = this.getComponent(i);
+        MethodFailedException.assert(newComp == c, "MethodFailedException: Method failed.");
+
+        // Invariant:
+        this.assertInvariant();
     }
 
-    public insert(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
+
+    /** @methodtype command-method */
+    public insert(i: number, c: string): void {
+        // Preconditions:
+        IllegalArgumentException.assert(this.isValidIndex(i), "IllegalArgumentException: Index out of bounds.");
+        IllegalArgumentException.assert(this.isValidComponent(c), "IllegalArgumentException: Invalid component.");
+
+        this.components.splice(i, 0, c);
+
+        // Postcondition:
+        const newComp: string = this.getComponent(i);
+        MethodFailedException.assert(newComp == c, "MethodFailedException: Method failed.");
+
+        // Invariant:
+        this.assertInvariant();
     }
 
-    public append(c: string) {
-        throw new Error("needs implementation or deletion");
+
+    /** Expects that new Name component c is properly masked 
+     * @methodtype command-method */
+    public append(c: string): void {
+        // Precondition:
+        IllegalArgumentException.assert(this.isValidComponent(c), "IllegalArgumentException: Invalid component.");
+
+        this.components.push(c);
+
+        // Postcondition:
+        const newComp: string = this.getComponent(this.getNoComponents() - 1);
+        MethodFailedException.assert(newComp == c, "MethodFailedException: Method failed.");     
+        
+        // Invariant:
+        this.assertInvariant();
     }
 
-    public remove(i: number) {
-        throw new Error("needs implementation or deletion");
+
+    /** @methodtype command-method */
+    public remove(i: number): void {
+        // Precondition:
+        IllegalArgumentException.assert(this.isValidIndex(i), "IllegalArgumentException: Index out of bounds.");
+        IllegalArgumentException.assert(! this.isEmpty(), "IllegalArgumentException: Name is empty.")
+
+        const oldLength: number = this.getNoComponents();
+        const oldComp: string = this.getComponent(i);
+
+        const removedComp = this.components.splice(i, 1);
+
+        // Postcondition:
+        MethodFailedException.assert(oldLength - 1 == this.getNoComponents(), "MethodFailedException: Method failed.");
+        MethodFailedException.assert(removedComp.toString() == oldComp, "MethodFailedException: Method failed.");
+
+        // Invariant:
+        this.assertInvariant();
     }
 
-    public concat(other: Name): void {
-        throw new Error("needs implementation or deletion");
+
+    public newInstance(): StringArrayName {
+        // No pre- & postconditions, since invariant guarantees valid new instance in constructor of new instance.
+        return new StringArrayName([... this.components], this.delimiter);
     }
+
 }
