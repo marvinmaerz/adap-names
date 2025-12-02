@@ -7,6 +7,7 @@ import { ServiceFailureException } from "../../../src/adap-b05/common/ServiceFai
 import { StringName } from "../../../src/adap-b05/names/StringName";
 
 import { Node } from "../../../src/adap-b05/files/Node";
+import { Link } from "../../../src/adap-b05/files/Link";
 import { File } from "../../../src/adap-b05/files/File";
 import { BuggyFile } from "../../../src/adap-b05/files/BuggyFile";
 import { Directory } from "../../../src/adap-b05/files/Directory";
@@ -19,6 +20,7 @@ function createFileSystem(): RootNode {
   let bin: Directory = new Directory("bin", usr);
   let ls: File = new File("ls", bin);
   let code: File = new File("code", bin);
+  let link: Link = new Link("link", bin, code);         // added link with base name "link" to the File "code"
 
   let media: Directory = new Directory("media", rn);
 
@@ -36,6 +38,11 @@ describe("Basic naming test", () => {
     let fs: RootNode = createFileSystem();
     let ls: Node = [...fs.findNodes("ls")][0]; 
     expect(ls.getFullName().asString()).toBe(new StringName("/usr/bin/ls", '/').asString());
+
+    // Test if links work as intended
+    let codeAndLink: Node[] = [...fs.findNodes("code")];      // fs.findNodes("link") wouldn't work, since it returns the base name of its target Node
+    expect(codeAndLink[0].getFullName().asString()).toBe(new StringName("/usr/bin/code", '/').asString());    // 1st element is the code File
+    expect(codeAndLink[1].getFullName().asString()).toBe(new StringName("/usr/bin/code", '/').asString());    // 2nd element is the link to code File
   });
 });
 

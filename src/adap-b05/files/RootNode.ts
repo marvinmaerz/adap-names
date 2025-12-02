@@ -50,10 +50,22 @@ export class RootNode extends Directory {
     }
 
 
+
+    /**
+     * Returns all nodes in the tree that match bn.
+     * 
+     * RootNode is the service boundary: throw a ServiceFailureException here
+     * instead of the other (unchecked) Exceptions that may arise during Node search.
+     * 
+     * @param bn basename of node being searched for
+     */
     public findNodes(bn: string): Set<Node>{
         // Catching any exceptions that "bubble" up inside of the service and components.
         try {
+            if (bn == "") return new Set<Node>().add(this);         // return root node if we search for its base name ""
+
             return super.findNodes(bn);     // Use Directory.findNodes(bn) for the actual recursive search
+
         } catch (ex) {
             if (ex instanceof Exception) {
                 // Throw ServiceFailureException, with trigger chain attached (i.e. Exceptions that caused the service to fail)
